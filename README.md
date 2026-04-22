@@ -1,1 +1,1 @@
-# Dia-ky-thuat-calc
+# Diakythuatcalc
