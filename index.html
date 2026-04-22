@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoTech Calc - Tính toán Cc, Cr</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .input-card { transition: all 0.3s ease; }
+        .input-card:focus-within { transform: translateY(-2px); border-color: #3b82f6; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen pb-12">
+
+    <nav class="bg-blue-700 text-white shadow-lg p-4 mb-8">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold italic tracking-wider">
+                <i class="fa-solid fa-hard-hat mr-2"></i>GEOTECH TOOL
+            </h1>
+            <span class="text-sm opacity-80 uppercase font-semibold">Dự báo thông số cố kết</span>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4">
+        <div class="grid lg:grid-cols-3 gap-8">
+
+            <div class="lg:col-span-1 space-y-4">
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                    <h2 class="text-lg font-semibold mb-4 text-gray-700 border-b pb-2">Thông số đầu vào</h2>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Độ ẩm W (%)</label>
+                            <input type="number" id="W" value="48.91" step="0.01" class="w-full mt-1 p-2 bg-gray-50 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600">L.Limit W<sub>L</sub> (%)</label>
+                                <input type="number" id="WL" value="52.3" step="0.1" class="w-full mt-1 p-2 bg-gray-50 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600">P.Limit W<sub>P</sub> (%)</label>
+                                <input type="number" id="WP" value="26.21" step="0.01" class="w-full mt-1 p-2 bg-gray-50 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Tỷ trọng hạt &Delta; (t/m³)</label>
+                            <input type="number" id="delta" value="2.72" step="0.01" class="w-full mt-1 p-2 bg-gray-50 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Hệ số rỗng e</label>
+                            <input type="number" id="e" value="1.361" step="0.001" class="w-full mt-1 p-2 bg-gray-50 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                    </div>
+
+                    <button onclick="calculate()" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow transition duration-200">
+                        <i class="fa-solid fa-calculator mr-2"></i>TÍNH TOÁN
+                    </button>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="bg-blue-50 p-4 border-b border-blue-100 flex justify-between items-center">
+                        <h3 class="font-bold text-blue-800 uppercase italic">Chỉ số nén (C<sub>c</sub>)</h3>
+                        <span id="cc_avg" class="bg-blue-600 text-white px-3 py-1 rounded-full text-sm">Avg: --</span>
+                    </div>
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+                            <tr>
+                                <th class="p-4 border-b">Nguồn/Tác giả</th>
+                                <th class="p-4 border-b text-right">Kết quả</th>
+                                <th class="p-4 border-b">Đối tượng áp dụng</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cc_results" class="text-sm text-gray-700">
+                            </tbody>
+                    </table>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="bg-green-50 p-4 border-b border-green-100 flex justify-between items-center">
+                        <h3 class="font-bold text-green-800 uppercase italic">Chỉ số nén lại (C<sub>r</sub>)</h3>
+                        <span id="cr_avg" class="bg-green-600 text-white px-3 py-1 rounded-full text-sm">Avg: --</span>
+                    </div>
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+                            <tr>
+                                <th class="p-4 border-b">Nguồn/Công thức</th>
+                                <th class="p-4 border-b text-right">Kết quả</th>
+                                <th class="p-4 border-b">Ghi chú</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cr_results" class="text-sm text-gray-700">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-12 text-center text-gray-400 text-xs">
+        <p>© 2026 GeoTech Calculator - Dữ liệu dựa trên bảng tính thực nghiệm</p>
+    </footer>
+
+    <script>
+        function calculate() {
+            // Lấy input
+            const W = parseFloat(document.getElementById('W').value) || 0;
+            const WL = parseFloat(document.getElementById('WL').value) || 0;
+            const WP = parseFloat(document.getElementById('WP').value) || 0;
+            const delta = parseFloat(document.getElementById('delta').value) || 0;
+            const e = parseFloat(document.getElementById('e').value) || 0;
+            const Ip = WL - WP;
+
+            // Tính Cc
+            const cc_data = [
+                { name: 'Terzaghi & Peck (1976)', val: 0.009 * (WL - 10), note: 'Sét nguyên dạng' },
+                { name: 'Rendon-Herrero (1983)', val: 0.141 * Math.pow(delta, 1.2) * Math.pow((1+e)/delta, 2.38), note: 'Sét' },
+                { name: 'Bergado & Long (1995)', val: (1+e)*(0.6 - 33/(WL + 37)), note: 'Sét, bùn sét' },
+                { name: 'Hệ số rỗng e', val: 0.3 * (e - 0.27), note: 'Bụi, sét bụi' },
+                { name: 'Skempton (Ip)', val: 0.007 * (WL - 10), note: 'Sét nhào nặn' },
+                { name: 'Theo Ip/74', val: Ip / 74, note: 'Tổng quát' }
+            ];
+
+            // Tính Cr
+            const cr_data = [
+                { name: 'Cr = 0.0463*(WL/100)*Δ', val: 0.0463 * (WL / 100) * delta, note: '' },
+                { name: 'Cr = 0.00194*(Ip-4.6)', val: Ip > 4.6 ? 0.00194 * (Ip - 4.6) : 0, note: 'Ip < 50%' },
+                { name: 'Cr = 0.2 * Cc(Avg)', val: 0, note: 'Giả định kinh nghiệm' },
+                { name: 'Cr = 0.05 * Cc(Avg)', val: 0, note: 'Giả định kinh nghiệm' }
+            ];
+
+            // Render Cc
+            let cc_html = '';
+            let cc_sum = 0;
+            cc_data.forEach(item => {
+                cc_sum += item.val;
+                cc_html += `<tr class="hover:bg-gray-50 border-b italic">
+                    <td class="p-4">${item.name}</td>
+                    <td class="p-4 text-right font-bold text-blue-600">${item.val.toFixed(3)}</td>
+                    <td class="p-4 text-gray-400 text-xs">${item.note}</td>
+                </tr>`;
+            });
+            document.getElementById('cc_results').innerHTML = cc_html;
+            const cc_avg = cc_sum / cc_data.length;
+            document.getElementById('cc_avg').innerText = 'Avg: ' + cc_avg.toFixed(3);
+
+            // Cập nhật các dòng Cr phụ thuộc vào Cc Avg
+            cr_data[2].val = 0.2 * cc_avg;
+            cr_data[3].val = 0.05 * cc_avg;
+
+            // Render Cr
+            let cr_html = '';
+            let cr_sum = 0;
+            cr_data.forEach(item => {
+                cr_sum += item.val;
+                cr_html += `<tr class="hover:bg-gray-50 border-b italic">
+                    <td class="p-4">${item.name}</td>
+                    <td class="p-4 text-right font-bold text-green-600">${item.val.toFixed(3)}</td>
+                    <td class="p-4 text-gray-400 text-xs">${item.note}</td>
+                </tr>`;
+            });
+            document.getElementById('cr_results').innerHTML = cr_html;
+            document.getElementById('cr_avg').innerText = 'Avg: ' + (cr_sum / cr_data.length).toFixed(3);
+        }
+
+        // Chạy lần đầu
+        window.onload = calculate;
+    </script>
+</body>
+</html>
